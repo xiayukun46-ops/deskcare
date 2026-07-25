@@ -61,7 +61,7 @@
     },
     "windows": {
       "wix": null,
-      "nsis": { "template": "installer.nsi" }
+      "nsis": null
     },
     "resources": [],
     "createUpdaterArtifacts": false
