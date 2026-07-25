@@ -1,0 +1,38 @@
+[package]
+name = "deskcare"
+version = "0.1.0"
+description = "DeskCare — 桌面健康提醒应用"
+authors = ["you"]
+license = "MIT"
+repository = ""
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.6.3", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+log = "0.4"
+tauri = { version = "2.11.3", features = ["tray-icon"] }
+tauri-plugin-log = "2"
+tauri-plugin-notification = "2"
+tokio = { version = "1", features = ["time", "rt", "macros", "sync"] }
+chrono = { version = "0.4", features = ["serde"] }
+directories = "5"
+rand = "0.8"
+
+# ════════════════════════════════════════════════════════════════
+# 发布构建优化：体积最小化 + 内存控制
+# ════════════════════════════════════════════════════════════════
+[profile.release]
+opt-level = "s"          # 优化体积优先（比 "z" 更稳健，编译更快）
+lto = true               # 链接时优化，消除跨 crate 死代码
+codegen-units = 1        # 单代码生成单元，最大化内联
+strip = true             # 剥离调试符号
+panic = "abort"          # panic 时直接终止 → 更小二进制 + 更少 unwinding 代码
