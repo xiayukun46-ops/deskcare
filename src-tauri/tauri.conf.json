@@ -64,6 +64,6 @@
       "nsis": { "template": "installer.nsi" }
     },
     "resources": [],
-    "createUpdaterArtifacts": false, "macOS": { "minimumSystemVersion": "10.15", "dmg": { "windowWidth": 500, "windowHeight": 400 }, "bundleShortVersionString": "0.1.0", "bundleVersion": "0.1.0" }
+    "createUpdaterArtifacts": false
   }
 }
