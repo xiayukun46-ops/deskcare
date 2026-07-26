@@ -68,7 +68,7 @@ export function TrayPanel() {
   const [ambientSound, setAmbientSound] = useState<'off' | 'rain' | 'cafe' | 'forest'>('off')
   const noiseCtx = useRef<AudioContext | null>(null)
   const [healthFact, setHealthFact] = useState('')
-  const [showGuide, setShowGuide] = useState(() => !localStorage.getItem('deskcare_guide_shown'))
+  const [showGuide, setShowGuide] = useState(() => !localStorage.getItem('deskcare_guide_v2'))
 
   useReminder()
   useTrayPanel()
@@ -155,7 +155,7 @@ export function TrayPanel() {
 
   const dismissGuide = useCallback(() => {
     setShowGuide(false)
-    localStorage.setItem('deskcare_guide_shown', '1')
+    localStorage.setItem('deskcare_guide_v2', '1')
   }, [])
 
   const isSettings = view === 'settings'
@@ -168,14 +168,14 @@ export function TrayPanel() {
       {/* ===== 共享拖拽区 ===== */}
       <div data-tauri-drag-region id="drag-bar" className="h-8 shrink-0 flex items-center justify-center bg-[#F3F4F5] border-b border-gray-200 cursor-grab select-none">
         {isSettings ? (
-          <span className="text-[11px] text-gray-400 tracking-wider">↕ 拖拽移动窗口</span>
+          <span className="text-[11px] text-gray-400 tracking-wider">{T[lang]?.dragMove || "↕ 拖拽移动"}窗口</span>
         ) : (
           <>
             <div className="flex items-center gap-1.5">
               <div className="w-1 h-3 rounded-full bg-gray-300" />
               <div className="w-1 h-3 rounded-full bg-gray-300" />
             </div>
-            <span className="text-[11px] text-gray-400 tracking-wider mx-2">↕ 拖拽移动</span>
+            <span className="text-[11px] text-gray-400 tracking-wider mx-2">{T[lang]?.dragMove || "↕ 拖拽移动"}</span>
             <div className="flex items-center gap-1.5">
               <div className="w-1 h-3 rounded-full bg-gray-300" />
               <div className="w-1 h-3 rounded-full bg-gray-300" />
@@ -275,7 +275,7 @@ export function TrayPanel() {
               <div className="flex items-center gap-2">
                 <Icon name="bell" size={15} className="text-sage-500" />
                 <span className="text-[13px] font-semibold text-sage-700">
-                  {REMINDER_CONFIG.find((c) => c.type === activeReminder.type)?.title} — 现在开始！
+                  {REMINDER_CONFIG.find((c) => c.type === activeReminder.type)?.title} — {T[lang]?.nowStart || "现在开始！"}
                 </span>
               </div>
             </div>
@@ -341,7 +341,7 @@ export function TrayPanel() {
                   active={activeReminder?.type === config.type} onClick={() => handleQuickAction(config.type)} />
               ))}
             </div>
-            <p className="text-center text-[10px] text-gray-400 mt-1 leading-tight select-none">点击上方按钮可重置该类倒计时</p>
+            <p className="text-center text-[10px] text-gray-400 mt-1 leading-tight select-none">{T[lang]?.resetHint || "点击上方按钮可重置该类倒计时"}</p>
             <p className="text-center text-[9px] text-gray-300 leading-none mt-0.5 select-none">xyk</p>
           </div>
         </>
@@ -358,8 +358,8 @@ export function TrayPanel() {
               <li>· 卡片开关控制提醒</li>
               <li>· 完成提醒获得健康值</li>
               <li>· 连续打卡解锁连击成就</li>
-              <li>· 设置中可切换中文/English/한국어/日本語</li>
-              <li>· 支持添加自定义提醒类型</li>
+              <li>· {T[lang]?.guideLang || "设置中可切换中文/English/한국어/日本語"}</li>
+              <li>· {T[lang]?.guideCustom || "支持添加自定义提醒类型"}</li>
             </ul>
             <button onClick={dismissGuide}
               className="w-full py-2.5 rounded-xl bg-sage-500 text-white text-[13px] font-medium hover:bg-sage-600 transition-colors">

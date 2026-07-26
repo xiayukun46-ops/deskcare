@@ -1,6 +1,7 @@
 import { useSettingsStore } from '../../stores/settingsStore'
 import { useSettings } from '../../hooks/useSettings'
 import { Icon } from '../shared/Icon'
+import { T } from '../../stores/settingsStore'
 
 function TimeSliderWidget({ label, value, min, max, step = 5, onChange }: {
   label: string; value: number; min: number; max: number; step?: number; onChange: (v: number) => void
@@ -23,6 +24,7 @@ export function SettingsPanel() {
   const updateInterval = useSettingsStore((s) => s.updateInterval)
   const updateNotification = useSettingsStore((s) => s.updateNotification)
   const updateGeneral = useSettingsStore((s) => s.updateGeneral)
+  const lang = (settings.general.language || 'zh-CN') as 'zh-CN' | 'en' | 'ko' | 'ja'
   const { saveSettings } = useSettings()
 
   const handleIntervalChange = (key: 'stretchMinutes' | 'eyeRelaxMinutes' | 'kegelMinutes' | 'breathingMinutes', value: number) => {
@@ -33,7 +35,7 @@ export function SettingsPanel() {
   return (
     <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
       <section>
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">提醒间隔</h3>
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{T[lang]?.intervalSettings}</h3>
         <div className="space-y-4">
           <TimeSliderWidget label="久坐拉伸" value={settings.intervals.stretchMinutes} min={15} max={90}
             onChange={(v) => handleIntervalChange('stretchMinutes', v)} />
@@ -47,12 +49,12 @@ export function SettingsPanel() {
       </section>
 
       <section>
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">通知偏好</h3>
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{T[lang]?.notifySettings}</h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between py-1.5">
             <div className="flex items-center gap-2">
               <Icon name="bell-off" size={16} className="text-gray-400" />
-              <span className="text-xs text-gray-700">夜间静音</span>
+              <span className="text-xs text-gray-700">{T[lang]?.nightSilent}</span>
             </div>
             <label className="toggle-switch">
               <input type="checkbox" checked={settings.notification.silentMode}
@@ -62,11 +64,11 @@ export function SettingsPanel() {
           </div>
           {settings.notification.silentMode && (
             <div className="flex items-center gap-2 pl-7 text-xs text-gray-500">
-              <span>静音时段</span>
+              <span>{T[lang]?.silentPeriod}</span>
               <input type="time" value={settings.notification.silentStart}
                 onChange={(e) => updateNotification({ silentStart: e.target.value })}
                 className="text-xs border border-gray-200 rounded px-1.5 py-0.5" />
-              <span>至</span>
+              <span>{T[lang]?.to}</span>
               <input type="time" value={settings.notification.silentEnd}
                 onChange={(e) => updateNotification({ silentEnd: e.target.value })}
                 className="text-xs border border-gray-200 rounded px-1.5 py-0.5" />
@@ -75,7 +77,7 @@ export function SettingsPanel() {
           <div className="flex items-center justify-between py-1.5">
             <div className="flex items-center gap-2">
               <Icon name="info" size={16} className="text-gray-400" />
-              <span className="text-xs text-gray-700">显示通知预览</span>
+              <span className="text-xs text-gray-700">{T[lang]?.showPreview}</span>
             </div>
             <label className="toggle-switch">
               <input type="checkbox" checked={settings.notification.showPreview}
@@ -87,10 +89,10 @@ export function SettingsPanel() {
       </section>
 
       <section>
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">通用</h3>
+        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{T[lang]?.generalSettings}</h3>
         <div className="space-y-3">
           <div className="flex items-center justify-between py-1.5">
-            <span className="text-xs text-gray-700">开机自动启动</span>
+            <span className="text-xs text-gray-700">{T[lang]?.autoStart}</span>
             <label className="toggle-switch">
               <input type="checkbox" checked={settings.general.launchAtLogin}
                 onChange={() => updateGeneral({ launchAtLogin: !settings.general.launchAtLogin })} />
@@ -101,18 +103,18 @@ export function SettingsPanel() {
       </section>
 
           <div className="flex items-center justify-between py-1.5">
-            <span className="text-xs text-gray-700">语言 / Language</span>
+            <span className="text-xs text-gray-700">{T[lang]?.language}</span>
             <select value={settings.general.language}
               onChange={(e) => updateGeneral({ language: e.target.value })}
               className="text-xs border border-gray-200 rounded px-2 py-1 bg-white">
-              <option value="zh-CN">中文</option>
+              <option value="zh-CN">{T[lang]?.zh || "中文"}</option>
               <option value="en">English</option>
               <option value="ko">한국어</option>
               <option value="ja">日本語</option>
             </select>
           </div>
       <div className="pt-3 border-t border-gray-100">
-        <p className="text-[10px] text-gray-400 text-center">DeskCare v0.1.0 - 让健康成为习惯</p>
+        <p className="text-[10px] text-gray-400 text-center">{T[lang]?.version}</p>
       </div>
     </div>
   )
