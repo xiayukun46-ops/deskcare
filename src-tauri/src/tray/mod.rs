@@ -62,10 +62,11 @@ fn register_menu_events(app: &tauri::AppHandle) {
                     serde_json::json!({ "global_paused": !current_paused }),
                 );
             }
-            "trigger_now" => {
+            id if id.starts_with("trigger_") => {
+                let ty = id.strip_prefix("trigger_").unwrap_or("stretch").to_string();
                 let app = app_handle.clone();
                 tauri::async_runtime::spawn(async move {
-                    crate::scheduler::trigger_now(&app, "stretch").await;
+                    crate::scheduler::trigger_now(&app, &ty).await;
                 });
             }
             "open_settings" => {

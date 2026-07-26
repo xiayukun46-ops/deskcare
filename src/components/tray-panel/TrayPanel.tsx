@@ -11,16 +11,17 @@ import { SettingsPanel } from '../settings/SettingsPanel'
 import { Icon } from '../shared/Icon'
 
 import catfishImg from '../../assets/OIP.webp'
+import { T, type Lang } from '../../stores/settingsStore'
 
 const REMINDER_CONFIG = [
   { type: 'stretch',   title: '久坐拉伸', icon: 'stretch' as const,   guide: '双手举过头顶伸展 15s · 颈部左右转动各 10s · 起身走 30 步' },
-  { type: 'eye_relax', title: '眼部放松', icon: 'eye' as const,       guide: '远眺 6 米外 20s · 快速眨眼 20 次 · 顺/逆时针转眼各 5 圈' },
-  { type: 'kegel',     title: '提肛运动', icon: 'kegel' as const,     guide: '收紧盆底肌 5s → 放松 5s → 重复 10 次 · 呼气收紧吸气放松' },
+  { type: 'eye_relax', title: '眼部放松', icon: 'eye' as const,       guide: '远眺 6 米外 20s · 快速眨眼 20${T[lang].times} · 顺/逆时针转眼各 5 圈' },
+  { type: 'kegel',     title: '提肛运动', icon: 'kegel' as const,     guide: '收紧盆底肌 5s → 放松 5s → 重复 10${T[lang].times} · 呼气收紧吸气放松' },
   { type: 'breathing', title: '呼吸训练', icon: 'breathing' as const, guide: '鼻吸 4s → 屏息 7s → 口呼 8s → 重复 4 轮 · 感受腹部起伏' },
 ]
 
 const CAT_MESSAGES = [
-  '喵~ 继续加油！', '你是最棒的！', '休息一下也不错~', '健康值 +1！',
+  '喵~ 继续加油！', '你是最棒的！', '休息一下也不错~', '${T[lang].healthScore} +1！',
   '摸得好舒服~', '今天的你很优秀！', '好运连连！', '元气满满！',
   '坚持就是胜利！', '摸摸头，继续肝！', '离健康又近了一步！', '打工人雄起！',
 ]
@@ -90,8 +91,8 @@ export function TrayPanel() {
   const handleQuickAction = useCallback((type: string) => {
     elapsedRef.current[type] = 0
     setTick((n) => n + 1)
+    invoke('trigger_reminder_now', { reminderType: type }).catch(() => {})
   }, [])
-
   useEffect(() => {
     if (activeReminder) {
       elapsedRef.current[activeReminder.type] = 0
@@ -128,14 +129,14 @@ export function TrayPanel() {
       {/* ===== 共享拖拽区 ===== */}
       <div data-tauri-drag-region id="drag-bar" className="h-8 shrink-0 flex items-center justify-center bg-[#F3F4F5] border-b border-gray-200 cursor-grab select-none">
         {isSettings ? (
-          <span className="text-[11px] text-gray-400 tracking-wider">↕ 拖拽移动窗口</span>
+          <span className="text-[11px] text-gray-400 tracking-wider">${T[lang].dragMove}窗口</span>
         ) : (
           <>
             <div className="flex items-center gap-1.5">
               <div className="w-1 h-3 rounded-full bg-gray-300" />
               <div className="w-1 h-3 rounded-full bg-gray-300" />
             </div>
-            <span className="text-[11px] text-gray-400 tracking-wider mx-2">↕ 拖拽移动</span>
+            <span className="text-[11px] text-gray-400 tracking-wider mx-2">${T[lang].dragMove}</span>
             <div className="flex items-center gap-1.5">
               <div className="w-1 h-3 rounded-full bg-gray-300" />
               <div className="w-1 h-3 rounded-full bg-gray-300" />
@@ -163,10 +164,10 @@ export function TrayPanel() {
               <span className="text-[12px] font-bold text-gray-800">DeskCare</span>
             </div>
             <div className="flex items-center gap-0.5">
-              <button onClick={handleHide} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600" title="隐藏到托盘">
+              <button onClick={handleHide} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600" title="${T[lang].hide}">
                 <Icon name="minus" size={16} />
               </button>
-              <button onClick={() => setView('settings')} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600" title="设置">
+              <button onClick={() => setView('settings')} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600" title=${T[lang].settings}>
                 <Icon name="settings" size={16} />
               </button>
             </div>
@@ -204,16 +205,16 @@ export function TrayPanel() {
               ))}
             </div>
             <div className="flex flex-col items-center gap-1.5">
-              <span className="text-lg font-bold tracking-[0.25em] text-sage-700 select-none">保持健康</span>
+              <span className="text-lg font-bold tracking-[0.25em] text-sage-700 select-none">${T[lang].keepHealthy}</span>
               <div className="flex items-center gap-2 bg-white/85 rounded-full px-4 py-0.5 shadow-sm border border-sage-200/40 select-none">
-                <span className="text-[13px] text-sage-600 font-medium">❤️ 健康值</span>
+                <span className="text-[13px] text-sage-600 font-medium">❤️ ${T[lang].healthScore}</span>
                 <span className="text-base font-bold text-sage-600 tabular-nums">{healthScore}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-[10px] text-sage-500/70 select-none">(=^_^=) 撸猫 <span className="font-semibold text-sage-600">{petCount}</span> 次</span>
+                <span className="text-[10px] text-sage-500/70 select-none">(=^_^=) 撸猫 <span className="font-semibold text-sage-600">{petCount}</span>${T[lang].times}</span>
                 {currentStreak > 0 && (
                   <span className="text-[10px] text-sage-500/70 select-none">
-                    🔥 连续 <span className="font-semibold text-sage-600">{currentStreak}</span> 天
+                    🔥 ${T[lang].streakDays} <span className="font-semibold text-sage-600">{currentStreak}</span> 天
                     {longestStreak > currentStreak && <span className="text-gray-400"> (最佳{longestStreak})</span>}
                   </span>
                 )}
@@ -279,7 +280,7 @@ export function TrayPanel() {
               <li>· 顶部拖拽栏可移动窗口</li>
               <li>· 点击小猫有惊喜</li>
               <li>· 卡片开关控制提醒</li>
-              <li>· 完成提醒获得健康值</li>
+              <li>· 完成提醒获得${T[lang].healthScore}</li>
               <li>· 连续打卡解锁连击成就</li>
             </ul>
             <button onClick={dismissGuide}
