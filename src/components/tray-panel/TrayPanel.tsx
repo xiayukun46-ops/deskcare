@@ -11,6 +11,7 @@ import { SettingsPanel } from '../settings/SettingsPanel'
 import { Icon } from '../shared/Icon'
 
 import catfishImg from '../../assets/OIP.webp'
+import { T } from '../../stores/settingsStore'
 
 const REMINDER_CONFIG = [
   { type: 'stretch',   title: '久坐拉伸', icon: 'stretch' as const,   guide: '双手举过头顶伸展 15s · 颈部左右转动各 10s · 起身走 30 步' },
@@ -44,11 +45,14 @@ export function TrayPanel() {
   const setView = useSettingsStore((s) => s.setView)
   const activeReminder = useSettingsStore((s) => s.activeReminder)
   const settings = useSettingsStore((s) => s.settings)
+  const lang = (useSettingsStore((s) => s.settings.general.language) || 'zh-CN') as 'zh-CN' | 'en' | 'ko' | 'ja'
   const healthScore = useSettingsStore((s) => s.healthScore)
   const incrementHealth = useSettingsStore((s) => s.incrementHealth)
   const currentStreak = useSettingsStore((s) => s.currentStreak)
   const longestStreak = useSettingsStore((s) => s.longestStreak)
   const logCompletion = useSettingsStore((s) => s.logCompletion)
+  const customReminders = useSettingsStore((s) => s.customReminders)
+  const toggleCustomReminder = useSettingsStore((s) => s.toggleCustomReminder)
 
   const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>({
     stretch: true, eye_relax: true, kegel: true, breathing: true,
@@ -246,7 +250,7 @@ export function TrayPanel() {
             </div>
             <div className="flex flex-col items-center gap-1.5">
               {healthFact ? (<div className="bg-sage-50 border border-sage-200/40 rounded-lg px-3 py-1 mb-1" style={{animation:"slide-up 0.3s ease-out"}}><span className="text-[11px] text-sage-700">{healthFact}</span></div>) : null}
-          <span className="text-lg font-bold tracking-[0.25em] text-sage-700 select-none">保持健康</span>
+          <span className="text-lg font-bold tracking-[0.25em] text-sage-700 select-none">{T[lang]?.keepHealthy || "保持健康"}</span>
               <div className="flex items-center gap-2 bg-white/85 rounded-full px-4 py-0.5 shadow-sm border border-sage-200/40 select-none">
                 <span className="text-[13px] text-sage-600 font-medium">❤️ 健康值</span>
                 <span className="text-base font-bold text-sage-600 tabular-nums">{healthScore}</span>
@@ -297,6 +301,20 @@ export function TrayPanel() {
               />
             ))}
           </div>
+
+          {customReminders.map((cr) => (
+            <ReminderCard
+              key={cr.id}
+              type={cr.id}
+              title={cr.title}
+              guide={cr.guide}
+              icon="stretch"
+              intervalMinutes={cr.intervalMinutes}
+              enabled={cr.enabled}
+              onToggle={() => toggleCustomReminder(cr.id)}
+              elapsedSeconds={elapsedRef.current[cr.id] ?? 0}
+            />
+          ))}
 
           {/* 底部 */}
           <div className="px-4 py-1.5 border-t border-gray-100 shrink-0">
