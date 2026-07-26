@@ -29,7 +29,6 @@ function ClockIcon({ size = 14 }: { size?: number }) {
 
 export function ReminderModal() {
   const [payload, setPayload] = useState<ReminderPayload | null>(null)
-  const [queue, setQueue] = useState<ReminderPayload[]>([])
   const [state, setState] = useState<ModalState>('idle')
   const windowRef = useRef(getCurrentWindow())
   const stateRef = useRef<ModalState>('idle')
@@ -38,10 +37,6 @@ export function ReminderModal() {
 
   useEffect(() => {
     const unlisten = listen<ReminderPayload>('show-reminder', (event) => {
-      if (stateRef.current !== 'idle') {
-        setQueue(q => [...q, event.payload])
-        return
-      }
       setPayload(event.payload)
       setState('entering'); stateRef.current = 'entering'
       requestAnimationFrame(() => {
@@ -61,19 +56,6 @@ export function ReminderModal() {
       try { await invoke('increment_health'); await emit('health-changed', {}) } catch { /* */ }
       try { await windowRef.current.hide() } catch { /* */ }
       setState('idle'); setPayload(null); stateRef.current = 'idle'
-      // Process queue
-      setTimeout(() => {
-        setQueue(q => {
-          if (q.length > 0) {
-            const next = q[0]
-            setPayload(next)
-            setState('entering'); stateRef.current = 'entering'
-            requestAnimationFrame(() => requestAnimationFrame(() => { setState('active'); stateRef.current = 'active' }))
-            return q.slice(1)
-          }
-          return q
-        })
-      }, 300)
     }, 450)
   }, [])
   completeRef.current = handleComplete
@@ -84,18 +66,6 @@ export function ReminderModal() {
     setTimeout(async () => {
       try { await windowRef.current.hide() } catch { /* */ }
       setState('idle'); setPayload(null); stateRef.current = 'idle'
-      setTimeout(() => {
-        setQueue(q => {
-          if (q.length > 0) {
-            const next = q[0]
-            setPayload(next)
-            setState('entering'); stateRef.current = 'entering'
-            requestAnimationFrame(() => requestAnimationFrame(() => { setState('active'); stateRef.current = 'active' }))
-            return q.slice(1)
-          }
-          return q
-        })
-      }, 300)
     }, 250)
   }, [])
   snoozeRef.current = handleSnooze

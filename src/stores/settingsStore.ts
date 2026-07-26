@@ -19,7 +19,7 @@ export interface CustomReminder {
 export type Lang = 'zh-CN' | 'en' | 'ko' | 'ja'
 
 // ── 翻译表 ──
-export const T: Record<Lang, Record<string, string>> = {
+export const T: Record<Lang, Record<string, string | string[]>> = {
   'zh-CN': {
     title: 'DeskCare', keepHealthy: '保持健康', healthScore: '健康值',
     petCat: '撸猫', times: '次', streakDays: '连续', days: '天', todayDone: '今日已打卡',
