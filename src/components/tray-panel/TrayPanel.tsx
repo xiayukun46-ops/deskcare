@@ -19,10 +19,22 @@ const REMINDER_CONFIG = [
   { type: 'breathing', title: '呼吸训练', icon: 'breathing' as const, guide: '鼻吸 4s → 屏息 7s → 口呼 8s → 重复 4 轮 · 感受腹部起伏' },
 ]
 
+function getCatSkin(count: number): string {
+  if (count >= 100) return '(=^_^=)v'
+  if (count >= 50) return '(=^_^=)*'
+  if (count >= 20) return '(=^-^=)'
+  if (count >= 10) return '(=^_^=)'
+  return '(=^_^=)'
+}
+
 const CAT_MESSAGES = [
   '喵~ 继续加油！', '你是最棒的！', '休息一下也不错~', '健康值 +1！',
   '摸得好舒服~', '今天的你很优秀！', '好运连连！', '元气满满！',
   '坚持就是胜利！', '摸摸头，继续肝！', '离健康又近了一步！', '打工人雄起！',
+]
+
+const HEALTH_FACTS = [
+  '每坐1小时，代谢率下降90%——起来走两步就恢复了！',
 ]
 
 type ReminderType = 'stretch' | 'eye_relax' | 'kegel' | 'breathing'
@@ -48,13 +60,16 @@ export function TrayPanel() {
   const [petCount, setPetCount] = useState(0)
   const [toasts, setToasts] = useState<{ id: number; msg: string; hearts: { x: number; d: number }[] }[]>([])
   const toastIdRef = useRef(0)
+  const [ambientSound, setAmbientSound] = useState<'off' | 'rain' | 'cafe' | 'forest'>('off')
+  const noiseCtx = useRef<AudioContext | null>(null)
+  const [healthFact, setHealthFact] = useState('')
   const [showGuide, setShowGuide] = useState(() => !localStorage.getItem('deskcare_guide_shown'))
 
   useReminder()
   useTrayPanel()
 
   useEffect(() => {
-    const unlisten = listen('health-changed', () => { incrementHealth(); logCompletion() })
+    const unlisten = listen('health-changed', () => { incrementHealth(); logCompletion(); setHealthFact(HEALTH_FACTS[Math.floor(Math.random()*HEALTH_FACTS.length)]); setTimeout(() => setHealthFact(''), 5000) })
     return () => { unlisten.then((fn) => fn()) }
   }, [incrementHealth, logCompletion])
 
@@ -113,6 +128,26 @@ export function TrayPanel() {
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 2200)
   }, [])
 
+  const toggleAmbient = useCallback((sound: 'off' | 'rain' | 'cafe' | 'forest') => {
+    setAmbientSound(sound)
+    if (noiseCtx.current) { noiseCtx.current.close(); noiseCtx.current = null }
+    if (sound === 'off') return
+    try {
+      const ctx = new AudioContext()
+      noiseCtx.current = ctx
+      const buf = ctx.createBuffer(1, ctx.sampleRate * 4, ctx.sampleRate)
+      const d = buf.getChannelData(0)
+      for (let i = 0; i < d.length; i++) {
+        if (sound === 'rain') d[i] = (Math.random() - 0.5) * 0.06 * Math.random()
+        else if (sound === 'cafe') d[i] = (Math.random() - 0.5) * 0.03 + Math.sin(i * 0.003) * 0.02
+        else d[i] = (Math.random() - 0.5) * 0.02 + Math.sin(i * 0.0007) * 0.04
+      }
+      const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true
+      const gain = ctx.createGain(); gain.gain.value = 0.15
+      src.connect(gain); gain.connect(ctx.destination); src.start()
+    } catch {}
+  }, [])
+
   const dismissGuide = useCallback(() => {
     setShowGuide(false)
     localStorage.setItem('deskcare_guide_shown', '1')
@@ -168,6 +203,11 @@ export function TrayPanel() {
               </button>
               <button onClick={() => setView('settings')} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600" title="设置">
                 <Icon name="settings" size={16} />
+          <button onClick={() => toggleAmbient(ambientSound==="off"?"rain":"off")}
+            className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+            title={ambientSound==="off"?"环境音：关闭":"环境音：已开启"}>
+            <span className="text-[14px]">{ambientSound==="off"?"🔇":"🎵"}</span>
+          </button>
               </button>
             </div>
           </>
@@ -190,6 +230,7 @@ export function TrayPanel() {
               <img src={catfishImg} alt="DeskCare"
                 className="h-12 w-auto object-contain mb-1 cursor-pointer hover:scale-110 transition-transform duration-200"
                 onClick={handlePetCat} title="戳我试试~" />
+              <span className="absolute -top-1 right-0 text-[10px] select-none pointer-events-none">{getCatSkin(petCount)}</span>
               {toasts.map((t) => (
                 <div key={t.id} className="absolute inset-0 pointer-events-none">
                   {t.hearts.map((h, i) => (
@@ -204,7 +245,8 @@ export function TrayPanel() {
               ))}
             </div>
             <div className="flex flex-col items-center gap-1.5">
-              <span className="text-lg font-bold tracking-[0.25em] text-sage-700 select-none">保持健康</span>
+              {healthFact ? (<div className="bg-sage-50 border border-sage-200/40 rounded-lg px-3 py-1 mb-1" style={{animation:"slide-up 0.3s ease-out"}}><span className="text-[11px] text-sage-700">{healthFact}</span></div>) : null}
+          <span className="text-lg font-bold tracking-[0.25em] text-sage-700 select-none">保持健康</span>
               <div className="flex items-center gap-2 bg-white/85 rounded-full px-4 py-0.5 shadow-sm border border-sage-200/40 select-none">
                 <span className="text-[13px] text-sage-600 font-medium">❤️ 健康值</span>
                 <span className="text-base font-bold text-sage-600 tabular-nums">{healthScore}</span>
@@ -281,6 +323,8 @@ export function TrayPanel() {
               <li>· 卡片开关控制提醒</li>
               <li>· 完成提醒获得健康值</li>
               <li>· 连续打卡解锁连击成就</li>
+              <li>· 设置中可切换中文/English/한국어/日本語</li>
+              <li>· 支持添加自定义提醒类型</li>
             </ul>
             <button onClick={dismissGuide}
               className="w-full py-2.5 rounded-xl bg-sage-500 text-white text-[13px] font-medium hover:bg-sage-600 transition-colors">
