@@ -110,7 +110,7 @@ export function SettingsPanel() {
               <option value="zh-CN">{T[lang]?.zh || "中文"}</option>
               <option value="en">English</option>
               <option value="ko">한국어</option>
-              <option value="ja">日本語</option>
+              <option value="ja">{(T[lang]?.ja as string) || "日本語"}</option>
             </select>
           </div>
       <div className="pt-3 border-t border-gray-100">

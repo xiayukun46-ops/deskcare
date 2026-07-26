@@ -39,6 +39,9 @@ export const T: Record<Lang, Record<string, string | string[]>> = {
     customTitle: '自定义提醒', titlePlaceholder: '提醒标题', guidePlaceholder: '动作指导',
     intervalLabel: '间隔（分钟）', add: '添加', delete: '删除',
     catMessages: ['喵~ 继续加油！','你是最棒的！','休息一下也不错~','健康值 +1！','摸得好舒服~','今天的你很优秀！','好运连连！','元气满满！','坚持就是胜利！','摸摸头，继续肝！','离健康又近了一步！','打工人雄起！'],
+      nowStart: '现在开始！', resetHint: '点击上方按钮可重置该类倒计时',
+    guideLang: '设置中可切换中文/English/한국어/日本語', guideCustom: '支持添加自定义提醒类型',
+    complete: '完成', snooze: '推迟', snooze5: '再给 5 分钟', done: '打卡完成', waiting: '等待提醒中…',
   },
   'en': {
     title: 'DeskCare', keepHealthy: 'Stay Healthy', healthScore: 'Health',
@@ -60,6 +63,9 @@ export const T: Record<Lang, Record<string, string | string[]>> = {
     customTitle: 'Custom Reminder', titlePlaceholder: 'Title', guidePlaceholder: 'Instructions',
     intervalLabel: 'Interval (min)', add: 'Add', delete: 'Delete',
     catMessages: ['Meow~ Keep going!','You are the best!','Take a break~','Health +1!','That feels good~','You are amazing!','Good luck!','Full of energy!','Keep it up!','Pat pat, keep coding!','One step closer!','You got this!'],
+      nowStart: 'Start now!', resetHint: 'Click above to reset countdown',
+    guideLang: 'Switch language in Settings', guideCustom: 'Add custom reminders',
+    complete: 'Complete', snooze: 'Delay', snooze5: '5 more min', done: 'Done!', waiting: 'Waiting...',
   },
   'ko': {
     title: 'DeskCare', keepHealthy: '건강 유지', healthScore: '건강 점수',
@@ -81,6 +87,9 @@ export const T: Record<Lang, Record<string, string | string[]>> = {
     customTitle: '사용자 정의 알림', titlePlaceholder: '제목', guidePlaceholder: '안내',
     intervalLabel: '간격 (분)', add: '추가', delete: '삭제',
     catMessages: ['냥~ 힘내세요!','최고예요!','잠시 쉬어요~','건강 +1!','기분 좋아요~','오늘 멋져요!','행운을 빕니다!','에너지 충만!','계속하세요!','토닥토닥!','한 걸음 더!','할 수 있어요!'],
+      nowStart: '지금 시작!', resetHint: '위 버튼으로 카운트다운 리셋',
+    guideLang: '설정에서 언어 변경', guideCustom: '사용자 정의 알림 추가',
+    complete: '완료', snooze: '연기', snooze5: '5분 더', done: '완료!', waiting: '기다리는 중…',
   },
   'ja': {
     title: 'DeskCare', keepHealthy: '健康維持', healthScore: '健康値',
@@ -102,6 +111,9 @@ export const T: Record<Lang, Record<string, string | string[]>> = {
     customTitle: 'カスタムリマインダー', titlePlaceholder: 'タイトル', guidePlaceholder: '説明',
     intervalLabel: '間隔（分）', add: '追加', delete: '削除',
     catMessages: ['ニャン~ 頑張って!','最高だよ!','少し休もう~','健康 +1!','気持ちいい~','今日も素晴らしい!','幸運を!','元気いっぱい!','続けよう!','よしよし!','あと一歩!','君ならできる!'],
+      nowStart: '今すぐ開始!', resetHint: '上のボタンでリセット',
+    guideLang: '設定で言語切替', guideCustom: 'カスタム通知追加',
+    complete: '完了', snooze: '延期', snooze5: 'あと5分', done: '完了!', waiting: '待機中…',
   },
 }
 

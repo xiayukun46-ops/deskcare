@@ -260,7 +260,7 @@ export function TrayPanel() {
               {healthFact ? (<div className="bg-sage-50 border border-sage-200/40 rounded-lg px-3 py-1 mb-1" style={{animation:"slide-up 0.3s ease-out"}}><span className="text-[11px] text-sage-700">{healthFact}</span></div>) : null}
           <span className="text-lg font-bold tracking-[0.25em] text-sage-700 select-none">{(T[lang]?.keepHealthy as string) || "保持健康"}</span>
               <div className="flex items-center gap-2 bg-white/85 rounded-full px-4 py-0.5 shadow-sm border border-sage-200/40 select-none">
-                <span className="text-[13px] text-sage-600 font-medium">❤️ 健康值</span>
+                <span className="text-[13px] text-sage-600 font-medium">{T[lang]?.healthScore || "❤️ 健康值"}</span>
                 <span className="text-base font-bold text-sage-600 tabular-nums">{healthScore}</span>
               </div>
               <div className="flex items-center gap-3">
@@ -271,7 +271,7 @@ export function TrayPanel() {
                     {longestStreak > currentStreak && <span className="text-gray-400"> (最佳{longestStreak})</span>}
                   </span>
                 )}
-                {todayDone && <span className="text-[10px] text-green-500/80 select-none">✓ 今日已打卡</span>}
+                {todayDone && <span className="text-[10px] text-green-500/80 select-none">{(T[lang]?.todayDone as string) || "✓ 今日已打卡"}</span>}
               </div>
             </div>
           </div>
@@ -363,13 +363,13 @@ export function TrayPanel() {
       {showGuide && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30" style={{ animation: 'fade-in 0.25s ease-out' }} onClick={dismissGuide}>
           <div className="bg-white rounded-2xl shadow-2xl px-6 py-5 mx-5 max-w-[340px]" style={{ animation: 'slide-up 0.3s ease-out' }} onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-sm font-bold text-gray-800 mb-3">欢迎使用 DeskCare</h3>
+            <h3 className="text-sm font-bold text-gray-800 mb-3">{(T[lang]?.guide as string) || "欢迎使用 DeskCare"}</h3>
             <ul className="text-[12px] text-gray-600 space-y-2 mb-4">
-              <li>· 顶部拖拽栏可移动窗口</li>
-              <li>· 点击小猫有惊喜</li>
-              <li>· 卡片开关控制提醒</li>
-              <li>· 完成提醒获得健康值</li>
-              <li>· 连续打卡解锁连击成就</li>
+              <li>{(T[lang]?.guide1 as string) || "· 顶部拖拽栏可移动窗口"}</li>
+              <li>{(T[lang]?.guide2 as string) || "· 点击小猫有惊喜"}</li>
+              <li>{(T[lang]?.guide3 as string) || "· 卡片开关控制提醒"}</li>
+              <li>{(T[lang]?.guide4 as string) || "· 完成提醒获得健康值"}</li>
+              <li>{(T[lang]?.guide5 as string) || "· 连续打卡解锁连击成就"}</li>
               <li>· {T[lang]?.guideLang || "设置中可切换中文/English/한국어/日本語"}</li>
               <li>· {T[lang]?.guideCustom || "支持添加自定义提醒类型"}</li>
             </ul>

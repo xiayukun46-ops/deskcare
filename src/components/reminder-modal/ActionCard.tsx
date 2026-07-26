@@ -3,6 +3,7 @@
 // ════════════════════════════════════════════════════════════════
 
 import type { ReminderPayload } from './types'
+import { T } from '../../stores/settingsStore'
 
 const CONFIG: Record<string, { icon: string; label: string; duration: string; color: string }> = {
   stretch:   { icon: '', label: '久坐拉伸', duration: '约 1 分钟', color: '#8AAE92' },
@@ -52,13 +53,13 @@ export function ActionCard({ payload }: ActionCardProps) {
             <kbd className="inline-flex items-center justify-center w-5 h-5 rounded-[5px] bg-sage-100/60 text-sage-600 font-mono text-[9px] font-semibold border border-sage-200/60">
               ␣
             </kbd>
-            完成
+            {(T as any)["zh-CN"]?.complete || "完成"}
           </span>
           <span className="flex items-center gap-1">
             <kbd className="inline-flex items-center justify-center w-5 h-5 rounded-[5px] bg-sage-100/60 text-sage-600 font-mono text-[9px] font-semibold border border-sage-200/60">
               Esc
             </kbd>
-            推迟
+            {(T as any)["zh-CN"]?.snooze || "推迟"}
           </span>
         </div>
       </div>

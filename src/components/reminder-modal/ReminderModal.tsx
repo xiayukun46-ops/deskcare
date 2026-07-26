@@ -7,6 +7,7 @@ import { BreathingGuide } from './BreathingGuide'
 import { ActionCard } from './ActionCard'
 import { playCompletionChime } from './sound'
 import type { ReminderPayload } from './types'
+import { T } from '../../stores/settingsStore'
 
 type ModalState = 'idle' | 'entering' | 'active' | 'completing' | 'snoozing'
 
@@ -84,10 +85,10 @@ export function ReminderModal() {
     return (
       <div className="h-full flex flex-col bg-warm-200">
         <div data-tauri-drag-region className="h-8 shrink-0 flex items-center justify-center cursor-grab active:cursor-grabbing select-none">
-          <span className="text-[10px] text-warm-400 tracking-widest">拖拽移动</span>
+          <span className="text-[10px] text-warm-400 tracking-widest">{T['zh-CN' as keyof typeof T]?.dragMove || "拖拽移动"}</span>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-[13px] text-warm-500">等待提醒中…</p>
+          <p className="text-[13px] text-warm-500">{(T as any)["zh-CN"]?.waiting || "等待提醒中…"}</p>
         </div>
       </div>
     )
@@ -100,7 +101,7 @@ export function ReminderModal() {
 
       {/* ═══ 拖拽栏 ═══ */}
       <div data-tauri-drag-region className="h-8 shrink-0 flex items-center justify-center bg-warm-200 border-b border-warm-300/30 cursor-grab active:cursor-grabbing select-none relative z-20">
-        <span className="text-[10px] text-warm-400 tracking-widest">拖拽移动</span>
+        <span className="text-[10px] text-warm-400 tracking-widest">{T['zh-CN' as keyof typeof T]?.dragMove || "拖拽移动"}</span>
       </div>
 
       {/* 背景光晕 */}
@@ -117,12 +118,12 @@ export function ReminderModal() {
           <button onClick={handleComplete} disabled={state !== 'active'}
             className="btn-shimmer relative w-full py-3.5 rounded-xl font-medium text-[14px] tracking-wide transition-all duration-200 bg-gradient-to-r from-sage-400 via-sage-500 to-sage-400 bg-[length:200%_100%] text-white shadow-md shadow-sage-400/25 hover:shadow-lg hover:shadow-sage-400/30 hover:brightness-105 active:scale-[0.96] active:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             style={{ backgroundPosition: '0% 50%' }}>
-            <CheckIcon size={18} /><span>完成打卡</span>
+            <CheckIcon size={18} /><span>{(T as any)["zh-CN"]?.complete || "完成打卡"}</span>
             <kbd className="ml-1.5 px-1.5 py-0.5 rounded-md bg-white/20 text-[10px] font-mono font-semibold">Space</kbd>
           </button>
           <button onClick={handleSnooze} disabled={state !== 'active'}
             className="glass-button w-full py-3 rounded-xl font-medium text-[12px] tracking-wide transition-all duration-200 text-warm-500 hover:text-sage-700 active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5">
-            <ClockIcon size={14} /><span>再给 5 分钟</span>
+            <ClockIcon size={14} /><span>{(T as any)["zh-CN"]?.snooze5 || "再给 5 分钟"}</span>
             <kbd className="ml-1 px-1.5 py-0.5 rounded-md bg-sage-100/60 text-[10px] font-mono text-sage-600 font-semibold border border-sage-200/40">Esc</kbd>
           </button>
         </div>
@@ -134,7 +135,7 @@ export function ReminderModal() {
             <div className="success-check w-16 h-16 rounded-full bg-gradient-to-br from-sage-400 to-sage-600 flex items-center justify-center shadow-xl shadow-sage-400/35">
               <CheckIcon size={34} />
             </div>
-            <span className="text-[14px] font-medium text-sage-700 tracking-wide">打卡完成</span>
+            <span className="text-[14px] font-medium text-sage-700 tracking-wide">{(T as any)["zh-CN"]?.done || "打卡完成"}</span>
           </div>
         </div>
       )}
