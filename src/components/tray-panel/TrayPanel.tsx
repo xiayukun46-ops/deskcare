@@ -21,10 +21,10 @@ const REMINDER_CONFIG = [
 ]
 
 function getCatSkin(count: number): string {
-  if (count >= 100) return '(=^_^=)v'
-  if (count >= 50) return '(=^_^=)*'
-  if (count >= 20) return '(=^-^=)'
-  if (count >= 10) return '(=^_^=)'
+  if (count >= 100) return '=^_^= v'
+  if (count >= 50) return '=^_^= *'
+  if (count >= 20) return '=^-^= ~'
+  if (count >= 10) return '=^_^= !'
   return '(=^_^=)'
 }
 
@@ -53,6 +53,7 @@ export function TrayPanel() {
   const logCompletion = useSettingsStore((s) => s.logCompletion)
   const customReminders = useSettingsStore((s) => s.customReminders)
   const toggleCustomReminder = useSettingsStore((s) => s.toggleCustomReminder)
+  const addCustomReminder = useSettingsStore((s) => s.addCustomReminder)
 
   const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>({
     stretch: true, eye_relax: true, kegel: true, breathing: true,
@@ -61,7 +62,7 @@ export function TrayPanel() {
   const elapsedRef = useRef<Record<string, number>>({ stretch: 0, eye_relax: 0, kegel: 0, breathing: 0 })
   const [, setTick] = useState(0)
 
-  const [petCount, setPetCount] = useState(0)
+  const [petCount, setPetCount] = useState(() => { try { return parseInt(localStorage.getItem('deskcare_pet')||'0') } catch { return 0 } })
   const [toasts, setToasts] = useState<{ id: number; msg: string; hearts: { x: number; d: number }[] }[]>([])
   const toastIdRef = useRef(0)
   const [ambientSound, setAmbientSound] = useState<'off' | 'rain' | 'cafe' | 'forest'>('off')
@@ -128,7 +129,7 @@ export function TrayPanel() {
       d: 0.8 + Math.random() * 0.6,
     }))
     setToasts(prev => [...prev, { id, msg, hearts }])
-    setPetCount(c => c + 1)
+    setPetCount(c => { const n = c + 1; try { localStorage.setItem('deskcare_pet', String(n)) } catch {}; return n })
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 2200)
   }, [])
 
@@ -190,7 +191,7 @@ export function TrayPanel() {
             <button onClick={() => setView('reminders')} className="p-1.5 -ml-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
               <Icon name="arrow-left" size={18} />
             </button>
-            <h2 className="text-[12px] font-semibold text-gray-800">设置</h2>
+            <h2 className="text-[12px] font-semibold text-gray-800">{T[lang]?.settings || "设置"}</h2>
             <div className="w-8" />
           </>
         ) : (
@@ -256,7 +257,7 @@ export function TrayPanel() {
                 <span className="text-base font-bold text-sage-600 tabular-nums">{healthScore}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-[10px] text-sage-500/70 select-none">(=^_^=) 撸猫 <span className="font-semibold text-sage-600">{petCount}</span> 次</span>
+                <span className="text-[10px] text-sage-500/70 select-none">(=^_^=) 撸猫 <span className="font-semibold text-sage-600">{petCount}</span>{T[lang]?.times || " 次"}</span>
                 {currentStreak > 0 && (
                   <span className="text-[10px] text-sage-500/70 select-none">
                     🔥 连续 <span className="font-semibold text-sage-600">{currentStreak}</span> 天
@@ -315,6 +316,22 @@ export function TrayPanel() {
               elapsedSeconds={elapsedRef.current[cr.id] ?? 0}
             />
           ))}
+
+          <div className="flex items-center justify-center py-1.5">
+            <button onClick={() => {
+              const title = prompt('提醒名称（如：喝水）')
+              if (!title) return
+              const guide = prompt('动作指导（如：每次喝200ml水）')
+              if (!guide) return
+              const mins = parseInt(prompt('间隔（分钟）', '30') || '30')
+              if (isNaN(mins) || mins < 5) return
+              addCustomReminder({ title, guide, intervalMinutes: mins })
+            }}
+              className="text-[11px] text-gray-400 hover:text-sage-600 transition-colors">
+              + {T[lang]?.addCustom || '添加自定义提醒'}
+            </button>
+          </div>
+
 
           {/* 底部 */}
           <div className="px-4 py-1.5 border-t border-gray-100 shrink-0">
