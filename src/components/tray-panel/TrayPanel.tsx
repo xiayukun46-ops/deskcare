@@ -54,6 +54,7 @@ export function TrayPanel() {
   const customReminders = useSettingsStore((s) => s.customReminders)
   const toggleCustomReminder = useSettingsStore((s) => s.toggleCustomReminder)
   const addCustomReminder = useSettingsStore((s) => s.addCustomReminder)
+  const removeCustomReminder = useSettingsStore((s) => s.removeCustomReminder)
 
   const [enabledMap, setEnabledMap] = useState<Record<string, boolean>>({
     stretch: true, eye_relax: true, kegel: true, breathing: true,
@@ -168,14 +169,14 @@ export function TrayPanel() {
       {/* ===== 共享拖拽区 ===== */}
       <div data-tauri-drag-region id="drag-bar" className="h-8 shrink-0 flex items-center justify-center bg-[#F3F4F5] border-b border-gray-200 cursor-grab select-none">
         {isSettings ? (
-          <span className="text-[11px] text-gray-400 tracking-wider">{T[lang]?.dragMove || "↕ 拖拽移动"}窗口</span>
+          <span className="text-[11px] text-gray-400 tracking-wider">{(T[lang]?.dragMove as string) || "↕ 拖拽移动"}窗口</span>
         ) : (
           <>
             <div className="flex items-center gap-1.5">
               <div className="w-1 h-3 rounded-full bg-gray-300" />
               <div className="w-1 h-3 rounded-full bg-gray-300" />
             </div>
-            <span className="text-[11px] text-gray-400 tracking-wider mx-2">{T[lang]?.dragMove || "↕ 拖拽移动"}</span>
+            <span className="text-[11px] text-gray-400 tracking-wider mx-2">{(T[lang]?.dragMove as string) || "↕ 拖拽移动"}</span>
             <div className="flex items-center gap-1.5">
               <div className="w-1 h-3 rounded-full bg-gray-300" />
               <div className="w-1 h-3 rounded-full bg-gray-300" />
@@ -191,7 +192,7 @@ export function TrayPanel() {
             <button onClick={() => setView('reminders')} className="p-1.5 -ml-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
               <Icon name="arrow-left" size={18} />
             </button>
-            <h2 className="text-[12px] font-semibold text-gray-800">{T[lang]?.settings || "设置"}</h2>
+            <h2 className="text-[12px] font-semibold text-gray-800">{(T[lang]?.settings as string) || "\u8bbe\u7f6e"}</h2>
             <div className="w-8" />
           </>
         ) : (
@@ -206,13 +207,13 @@ export function TrayPanel() {
               <button onClick={handleHide} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600" title="隐藏到托盘">
                 <Icon name="minus" size={16} />
               </button>
-              <button onClick={() => setView('settings')} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600" title="设置">
+              <button onClick={() => setView("settings")} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600" title={(T[lang]?.settings as string) || "\u8bbe\u7f6e"}>
                 <Icon name="settings" size={16} />
-          <button onClick={() => toggleAmbient(ambientSound==="off"?"rain":"off")}
-            className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600"
-            title={ambientSound==="off"?"环境音：关闭":"环境音：已开启"}>
-            <span className="text-[14px]">{ambientSound==="off"?"🔇":"🎵"}</span>
-          </button>
+              </button>
+              <button onClick={() => toggleAmbient(ambientSound==="off"?"rain":"off")}
+                className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600"
+                title={ambientSound==="off"?"环境音：关闭":"环境音：已开启"}>
+                <span className="text-[14px]">{ambientSound==="off"?"🔇":"🎵"}</span>
               </button>
             </div>
           </>
@@ -251,7 +252,7 @@ export function TrayPanel() {
             </div>
             <div className="flex flex-col items-center gap-1.5">
               {healthFact ? (<div className="bg-sage-50 border border-sage-200/40 rounded-lg px-3 py-1 mb-1" style={{animation:"slide-up 0.3s ease-out"}}><span className="text-[11px] text-sage-700">{healthFact}</span></div>) : null}
-          <span className="text-lg font-bold tracking-[0.25em] text-sage-700 select-none">{T[lang]?.keepHealthy || "保持健康"}</span>
+          <span className="text-lg font-bold tracking-[0.25em] text-sage-700 select-none">{(T[lang]?.keepHealthy as string) || "保持健康"}</span>
               <div className="flex items-center gap-2 bg-white/85 rounded-full px-4 py-0.5 shadow-sm border border-sage-200/40 select-none">
                 <span className="text-[13px] text-sage-600 font-medium">❤️ 健康值</span>
                 <span className="text-base font-bold text-sage-600 tabular-nums">{healthScore}</span>
@@ -303,7 +304,7 @@ export function TrayPanel() {
             ))}
           </div>
 
-          {customReminders.map((cr) => (
+          {customReminders.map((cr) => (<>
             <ReminderCard
               key={cr.id}
               type={cr.id}
@@ -313,9 +314,14 @@ export function TrayPanel() {
               intervalMinutes={cr.intervalMinutes}
               enabled={cr.enabled}
               onToggle={() => toggleCustomReminder(cr.id)}
-              elapsedSeconds={elapsedRef.current[cr.id] ?? 0}
-            />
-          ))}
+              elapsedSeconds={elapsedRef.current[cr.id] ?? 0} />
+              <div className="flex justify-end -mt-1 mb-1">
+                <button onClick={() => removeCustomReminder(cr.id)}
+                  className="text-[10px] text-red-400 hover:text-red-600">
+                  {(T[lang]?.delete as string) || "删除"}
+                </button>
+              </div>
+          </>))}
 
           <div className="flex items-center justify-center py-1.5">
             <button onClick={() => {
@@ -328,7 +334,7 @@ export function TrayPanel() {
               addCustomReminder({ title, guide, intervalMinutes: mins })
             }}
               className="text-[11px] text-gray-400 hover:text-sage-600 transition-colors">
-              + {T[lang]?.addCustom || '添加自定义提醒'}
+              + {(T[lang]?.addCustom as string) || '添加自定义提醒'}
             </button>
           </div>
 
