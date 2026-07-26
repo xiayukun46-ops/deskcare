@@ -1,8 +1,5 @@
-// ════════════════════════════════════════════════════════════════════
-// DeskCare Timer 引擎 — 后台常驻，每秒 Tick，定时触发提醒
-// ════════════════════════════════════════════════════════════════════
-
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use tokio::sync::Mutex;
 use tokio::time::{interval, Duration};
 
@@ -25,6 +22,45 @@ static ENGINE: std::sync::OnceLock<SharedEngine> = std::sync::OnceLock::new();
 
 pub fn get_engine() -> Option<SharedEngine> {
     ENGINE.get().cloned()
+}
+
+// ── 用户空闲检测 ──
+
+const IDLE_RESET_SECS: u64 = 300; // 5 分钟
+
+static WAS_IDLE: AtomicBool = AtomicBool::new(false);
+
+#[cfg(target_os = "windows")]
+fn get_idle_seconds() -> u64 {
+    #[repr(C)]
+    struct LASTINPUTINFO { cbSize: u32, dwTime: u32 }
+    extern "system" { fn GetLastInputInfo(plii: *mut LASTINPUTINFO) -> i32; fn GetTickCount() -> u32; }
+    unsafe {
+        let mut lii = LASTINPUTINFO { cbSize: std::mem::size_of::<LASTINPUTINFO>() as u32, dwTime: 0 };
+        if GetLastInputInfo(&mut lii) != 0 {
+            let tick = GetTickCount();
+            if tick >= lii.dwTime { ((tick - lii.dwTime) / 1000) as u64 } else { 0 }
+        } else { 0 }
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+fn get_idle_seconds() -> u64 { 0 }
+
+async fn check_idle_and_reset(engine: &SharedEngine) {
+    let secs = get_idle_seconds();
+    if secs >= IDLE_RESET_SECS {
+        if !WAS_IDLE.swap(true, Ordering::SeqCst) {
+            log::info!("💤 用户 {} 秒未操作 — 暂停并重置全部计时器", secs);
+            let mut eng = engine.lock().await;
+            eng.global_paused = true;
+            eng.reset_all();
+        }
+    } else if WAS_IDLE.swap(false, Ordering::SeqCst) {
+        log::info!("👋 用户回归 — 恢复计时（已重置）");
+        let mut eng = engine.lock().await;
+        eng.global_paused = false;
+    }
 }
 
 // ── 初始化 ──
@@ -52,6 +88,8 @@ async fn tick_loop(app: AppHandle, engine: SharedEngine) {
 
     loop {
         ticker.tick().await;
+
+        check_idle_and_reset(&engine).await;
 
         let triggered: Vec<String> = {
             let mut eng = engine.lock().await;
@@ -89,7 +127,6 @@ async fn handle_reminder_triggered(app: &AppHandle, reminder_type: &str) {
 
     log::info!("🔔 [{}] {} — {}", reminder_type, payload.title, payload.body);
 
-    // 系统原生通知 (tauri-plugin-notification v2 链式 API)
     let _ = app
         .notification()
         .builder()
@@ -97,10 +134,8 @@ async fn handle_reminder_triggered(app: &AppHandle, reminder_type: &str) {
         .body(&payload.body)
         .show();
 
-    // 广播给前端
     let _ = app.emit("reminder-triggered", &payload);
 
-    // 唤醒提醒弹窗
     show_reminder_modal(app, &payload);
 }
 
@@ -143,7 +178,6 @@ pub async fn set_global_paused(paused: bool) {
     }
 }
 
-/// 立即触发提醒 — 收归 handle_reminder_triggered 全流程（通知+弹窗+事件）
 pub async fn trigger_now(app: &AppHandle, ty: &str) -> bool {
     if let Some(eng) = get_engine() {
         let ok = eng.lock().await.trigger_now(ty);
@@ -180,9 +214,7 @@ fn random_action(ty: &str) -> Option<String> {
         "breathing" => breathing::ACTIONS,
         _ => return None,
     };
-    if actions.is_empty() {
-        return None;
-    }
+    if actions.is_empty() { return None; }
     use std::time::SystemTime;
     let idx = SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)

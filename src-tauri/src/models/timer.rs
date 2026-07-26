@@ -116,6 +116,12 @@ impl TimerEngine {
             info.set_interval_minutes(minutes);
         }
     }
+    /// 重置全部计时器为满值
+    pub fn reset_all(&mut self) {
+        for info in self.timers.values_mut() {
+            info.reset();
+        }
+    }
 
     /// 生成前端可消费的快照
     pub fn snapshot(&self) -> EngineSnapshot {
