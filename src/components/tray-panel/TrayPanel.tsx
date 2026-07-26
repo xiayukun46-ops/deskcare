@@ -26,7 +26,7 @@ const CAT_MESSAGES = [
   '坚持就是胜利！', '摸摸头，继续肝！', '离健康又近了一步！', '打工人雄起！',
 ]
 
-type ReminderType = 'stretch' | 'eye_relax' | 'kegel' | 'breathing'
+function\ getCatSkin\(count:\ number\):\ string\ \{\n\ \ if\ \(count\ >=\ 100\)\ return\ '\(=\^_\^=\)'\n\ \ if\ \(count\ >=\ 50\)\ return\ '\(=\^_\^=\)\*'\n\ \ if\ \(count\ >=\ 20\)\ return\ '\(=\^-\^=\)'\n\ \ if\ \(count\ >=\ 10\)\ return\ '\(=\^_\^=\)'\n\ \ return\ '\(=\^_\^=\)'\n}\n\nconst\ HEALTH_FACTS\ =\ \[\n\ \ '每坐1小时，代谢率下降90%——起来走两步就恢复了！',\n\ \ '每天眨眼约2\.8万次，但盯着屏幕时会减少60%',\n\ \ '深呼吸4秒-7秒-8秒可以降低心率10-15次/分钟',\n\ \ '提肛运动（凯格尔）早在1948年就被医学界认可',\n\ \ '20-20-20法则：每20分钟看20英尺外20秒',\n\ \ '每天走8000步的人全因死亡率降低51%',\n\ \ '站立办公比坐着多消耗50大卡/小时',\n\ \ '颈部承受的压力会因低头角度每增加15度而翻倍',\n\ \ '多喝水！大脑75%是水分，脱水2%就会影响注意力',\n\ \ '冥想12分钟可以提升注意力持续4小时',\n]\n\n\{type\ ReminderType} = 'stretch' | 'eye_relax' | 'kegel' | 'breathing'
 
 export function TrayPanel() {
   const view = useSettingsStore((s) => s.view)
@@ -49,13 +49,16 @@ export function TrayPanel() {
   const [petCount, setPetCount] = useState(0)
   const [toasts, setToasts] = useState<{ id: number; msg: string; hearts: { x: number; d: number }[] }[]>([])
   const toastIdRef = useRef(0)
+  const [ambientSound, setAmbientSound] = useState<'off' | 'rain' | 'cafe' | 'forest'>('off')
+  const noiseCtx = useRef<AudioContext | null>(null)
+  const [healthFact, setHealthFact] = useState('')
   const [showGuide, setShowGuide] = useState(() => !localStorage.getItem('deskcare_guide_shown'))
 
   useReminder()
   useTrayPanel()
 
   useEffect(() => {
-    const unlisten = listen('health-changed', () => { incrementHealth(); logCompletion() })
+    const unlisten = listen('health-changed', () => { incrementHealth(); logCompletion(); setHealthFact(HEALTH_FACTS[Math.floor(Math.random()*HEALTH_FACTS.length)]); setTimeout(() => setHealthFact(''), 5000) })
     return () => { unlisten.then((fn) => fn()) }
   }, [incrementHealth, logCompletion])
 
@@ -112,6 +115,26 @@ export function TrayPanel() {
     setToasts(prev => [...prev, { id, msg, hearts }])
     setPetCount(c => c + 1)
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 2200)
+  }, [])
+
+  const toggleAmbient = useCallback((sound: 'off' | 'rain' | 'cafe' | 'forest') => {
+    setAmbientSound(sound)
+    if (noiseCtx.current) { noiseCtx.current.close(); noiseCtx.current = null }
+    if (sound === 'off') return
+    try {
+      const ctx = new AudioContext()
+      noiseCtx.current = ctx
+      const buf = ctx.createBuffer(1, ctx.sampleRate * 4, ctx.sampleRate)
+      const data = buf.getChannelData(0)
+      for (let i = 0; i < data.length; i++) {
+        if (sound === 'rain') data[i] = (Math.random() - 0.5) * 0.06 * Math.random()
+        else if (sound === 'cafe') data[i] = (Math.random() - 0.5) * 0.03 + Math.sin(i * 0.003) * 0.02
+        else data[i] = (Math.random() - 0.5) * 0.02 + Math.sin(i * 0.0007) * 0.04
+      }
+      const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true
+      const gain = ctx.createGain(); gain.gain.value = 0.15
+      src.connect(gain); gain.connect(ctx.destination); src.start()
+    } catch {}
   }, [])
 
   const dismissGuide = useCallback(() => {
@@ -191,6 +214,7 @@ export function TrayPanel() {
               <img src={catfishImg} alt="DeskCare"
                 className="h-12 w-auto object-contain mb-1 cursor-pointer hover:scale-110 transition-transform duration-200"
                 onClick={handlePetCat} title="戳我试试~" />
+          <span className="absolute -top-1 right-0 text-[10px] select-none pointer-events-none">{getCatSkin(petCount)}</span>
               {toasts.map((t) => (
                 <div key={t.id} className="absolute inset-0 pointer-events-none">
                   {t.hearts.map((h, i) => (
@@ -205,7 +229,12 @@ export function TrayPanel() {
               ))}
             </div>
             <div className="flex flex-col items-center gap-1.5">
-              <span className="text-lg font-bold tracking-[0.25em] text-sage-700 select-none">${T[lang].keepHealthy}</span>
+              {healthFact && (
+            <div className="bg-sage-50 border border-sage-200/40 rounded-lg px-3 py-1.5 mb-2 animate-slide-up">
+              <span className="text-[11px] text-sage-700">{healthFact}</span>
+            </div>
+          )}
+          <span className="text-lg font-bold tracking-[0.25em] text-sage-700 select-none">${T[lang].keepHealthy}</span>
               <div className="flex items-center gap-2 bg-white/85 rounded-full px-4 py-0.5 shadow-sm border border-sage-200/40 select-none">
                 <span className="text-[13px] text-sage-600 font-medium">❤️ ${T[lang].healthScore}</span>
                 <span className="text-base font-bold text-sage-600 tabular-nums">{healthScore}</span>
