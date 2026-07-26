@@ -37,13 +37,13 @@ export function SettingsPanel() {
       <section>
         <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{T[lang]?.intervalSettings}</h3>
         <div className="space-y-4">
-          <TimeSliderWidget label="久坐拉伸" value={settings.intervals.stretchMinutes} min={15} max={90}
+          <TimeSliderWidget label={(T[lang]?.stretch as string) || "久坐拉伸"} value={settings.intervals.stretchMinutes} min={15} max={90}
             onChange={(v) => handleIntervalChange('stretchMinutes', v)} />
-          <TimeSliderWidget label="眼部放松" value={settings.intervals.eyeRelaxMinutes} min={10} max={45}
+          <TimeSliderWidget label={(T[lang]?.eyeRelax as string) || "眼部放松"} value={settings.intervals.eyeRelaxMinutes} min={10} max={45}
             onChange={(v) => handleIntervalChange('eyeRelaxMinutes', v)} />
-          <TimeSliderWidget label="提肛运动" value={settings.intervals.kegelMinutes} min={30} max={120}
+          <TimeSliderWidget label={(T[lang]?.kegel as string) || "提肛运动"} value={settings.intervals.kegelMinutes} min={30} max={120}
             onChange={(v) => handleIntervalChange('kegelMinutes', v)} />
-          <TimeSliderWidget label="呼吸训练" value={settings.intervals.breathingMinutes} min={30} max={180}
+          <TimeSliderWidget label={(T[lang]?.breathing as string) || "呼吸训练"} value={settings.intervals.breathingMinutes} min={30} max={180}
             onChange={(v) => handleIntervalChange('breathingMinutes', v)} />
         </div>
       </section>
@@ -107,9 +107,9 @@ export function SettingsPanel() {
             <select value={settings.general.language}
               onChange={(e) => updateGeneral({ language: e.target.value })}
               className="text-xs border border-gray-200 rounded px-2 py-1 bg-white">
-              <option value="zh-CN">{T[lang]?.zh || "中文"}</option>
-              <option value="en">English</option>
-              <option value="ko">한국어</option>
+              <option value="zh-CN">{(T[lang]?.zh as string) || "中文"}</option>
+              <option value="en">{(T[lang]?.en as string) || "English"}</option>
+              <option value="ko">{(T[lang]?.ko as string) || "한국어"}</option>
               <option value="ja">{(T[lang]?.ja as string) || "日本語"}</option>
             </select>
           </div>

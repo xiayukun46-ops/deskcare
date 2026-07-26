@@ -64,7 +64,7 @@ export function TrayPanel() {
   const [, setTick] = useState(0)
   const translatedConfig = useMemo(() => REMINDER_CONFIG.map(cfg => ({
     ...cfg,
-    title: (T[lang] as any)?.[cfg.type] || cfg.title,
+    title: (T[lang] as any)?.[cfg.type==='stretch'?'stretch':cfg.type==='eye_relax'?'eyeRelax':cfg.type==='kegel'?'kegel':'breathing'] || cfg.title,
     guide: (T[lang] as any)?.[cfg.type==='stretch'?'stretchGuide':cfg.type==='eye_relax'?'eyeRelaxGuide':cfg.type==='kegel'?'kegelGuide':'breathingGuide'] || cfg.guide,
   })), [lang])
 
