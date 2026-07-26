@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { getCurrentWindow } from '@tauri-apps/api/window'
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
@@ -62,6 +62,12 @@ export function TrayPanel() {
   // 性能优化：用 useRef 存实际值，只用一个 trigger 触发渲染
   const elapsedRef = useRef<Record<string, number>>({ stretch: 0, eye_relax: 0, kegel: 0, breathing: 0 })
   const [, setTick] = useState(0)
+  const translatedConfig = useMemo(() => REMINDER_CONFIG.map(cfg => ({
+    ...cfg,
+    title: (T[lang] as any)?.[cfg.type] || cfg.title,
+    guide: (T[lang] as any)?.[cfg.type==='stretch'?'stretchGuide':cfg.type==='eye_relax'?'eyeRelaxGuide':cfg.type==='kegel'?'kegelGuide':'breathingGuide'] || cfg.guide,
+  })), [lang])
+
 
   const [petCount, setPetCount] = useState(() => { try { return parseInt(localStorage.getItem('deskcare_pet')||'0') } catch { return 0 } })
   const [toasts, setToasts] = useState<{ id: number; msg: string; hearts: { x: number; d: number }[] }[]>([])
@@ -276,7 +282,7 @@ export function TrayPanel() {
               <div className="flex items-center gap-2">
                 <Icon name="bell" size={15} className="text-sage-500" />
                 <span className="text-[13px] font-semibold text-sage-700">
-                  {REMINDER_CONFIG.find((c) => c.type === activeReminder.type)?.title} — {T[lang]?.nowStart || "现在开始！"}
+                  {translatedConfig.find((c) => c.type === activeReminder.type)?.title} — {T[lang]?.nowStart || "现在开始！"}
                 </span>
               </div>
             </div>
@@ -284,7 +290,7 @@ export function TrayPanel() {
 
           {/* 四张卡片 */}
           <div className="flex-1 flex flex-col justify-evenly px-4 py-0.5">
-            {REMINDER_CONFIG.map((config) => (
+            {translatedConfig.map((config) => (
               <ReminderCard
                 key={config.type}
                 type={config.type}
@@ -342,7 +348,7 @@ export function TrayPanel() {
           {/* 底部 */}
           <div className="px-4 py-1.5 border-t border-gray-100 shrink-0">
             <div className="grid grid-cols-4 gap-2">
-              {REMINDER_CONFIG.map((config) => (
+              {translatedConfig.map((config) => (
                 <QuickAction key={config.type} label={config.title} icon={config.icon}
                   active={activeReminder?.type === config.type} onClick={() => handleQuickAction(config.type)} />
               ))}
