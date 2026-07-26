@@ -100,6 +100,17 @@ export function SettingsPanel() {
         </div>
       </section>
 
+          <div className="flex items-center justify-between py-1.5">
+            <span className="text-xs text-gray-700">语言 / Language</span>
+            <select value={settings.general.language}
+              onChange={(e) => updateGeneral({ language: e.target.value })}
+              className="text-xs border border-gray-200 rounded px-2 py-1 bg-white">
+              <option value="zh-CN">中文</option>
+              <option value="en">English</option>
+              <option value="ko">한국어</option>
+              <option value="ja">日本語</option>
+            </select>
+          </div>
       <div className="pt-3 border-t border-gray-100">
         <p className="text-[10px] text-gray-400 text-center">DeskCare v0.1.0 - 让健康成为习惯</p>
       </div>

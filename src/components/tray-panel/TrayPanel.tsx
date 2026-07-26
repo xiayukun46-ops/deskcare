@@ -265,6 +265,20 @@ export function TrayPanel() {
                   active={activeReminder?.type === config.type} onClick={() => handleQuickAction(config.type)} />
               ))}
             </div>
+
+      {/* ===== 自定义提醒面板 ===== */}
+      {isSettings && false && view === 'custom' && (
+        <div className="flex-1 overflow-y-auto px-4 py-4">
+          <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{T[lang]?.customTitle || '自定义提醒'}</h3>
+          {customReminders.map((cr) => (
+            <div key={cr.id} className="flex items-center gap-2 py-1.5 border-b border-gray-100">
+              <span className="text-xs text-gray-700 flex-1">{cr.title} ({cr.intervalMinutes}min)</span>
+              <button onClick={() => removeCustomReminder(cr.id)}
+                className="text-[10px] text-red-400 hover:text-red-600">{T[lang]?.delete || '删除'}</button>
+            </div>
+          ))}
+        </div>
+      )}
             <p className="text-center text-[10px] text-gray-400 mt-1 leading-tight select-none">点击上方按钮可重置该类倒计时</p>
             <p className="text-center text-[9px] text-gray-300 leading-none mt-0.5 select-none">xyk</p>
           </div>
