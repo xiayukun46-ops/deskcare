@@ -296,6 +296,8 @@ export function TrayPanel() {
               <li>· 卡片开关控制提醒</li>
               <li>· 完成提醒获得${T[lang].healthScore}</li>
               <li>· 连续打卡解锁连击成就</li>
+              <li>· 设置中可切换中文/English/한국어/日本語</li>
+              <li>· 支持添加自定义提醒类型</li>
             </ul>
             <button onClick={dismissGuide}
               className="w-full py-2.5 rounded-xl bg-sage-500 text-white text-[13px] font-medium hover:bg-sage-600 transition-colors">
