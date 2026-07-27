@@ -13,7 +13,10 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - run: npm ci
+      - run: rustup target add x86_64-apple-darwin
       - uses: tauri-apps/tauri-action@v0
+        with:
+          args: --target universal-apple-darwin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v4
@@ -28,7 +31,10 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - run: npm ci
+      - run: rustup target add x86_64-apple-darwin
       - uses: tauri-apps/tauri-action@v0
+        with:
+          args: --target universal-apple-darwin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/upload-artifact@v4
