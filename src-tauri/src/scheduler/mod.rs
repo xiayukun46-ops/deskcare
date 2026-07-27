@@ -141,9 +141,7 @@ pub async fn set_global_paused(paused: bool) {
 }
 pub async fn trigger_now(app: &AppHandle, ty: &str) -> bool {
     if let Some(eng) = get_engine() {
-        let ok = eng.lock().await.trigger_now(ty);
-        if ok { handle_reminder_triggered(app, ty).await; }
-        ok
+        eng.lock().await.trigger_now(ty)
     } else { false }
 }
 pub async fn set_interval_minutes(ty: &str, minutes: u64) {

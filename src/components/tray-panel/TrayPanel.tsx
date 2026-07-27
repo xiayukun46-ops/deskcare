@@ -80,6 +80,14 @@ export function TrayPanel() {
   useReminder()
   useTrayPanel()
 
+
+  // 初始化同步：确保后端四个计时器都是启用状态
+  useEffect(() => {
+    ['stretch','eye_relax','kegel','breathing'].forEach(t => {
+      invoke('toggle_timer', { reminderType: t, enabled: true }).catch(() => {})
+    })
+  }, [])
+
   useEffect(() => {
     const unlisten = listen('health-changed', () => { incrementHealth(); logCompletion(); setHealthFact(HEALTH_FACTS[Math.floor(Math.random()*HEALTH_FACTS.length)]); setTimeout(() => setHealthFact(''), 5000) })
     return () => { unlisten.then((fn) => fn()) }
@@ -117,7 +125,7 @@ export function TrayPanel() {
   const handleQuickAction = useCallback((type: string) => {
     elapsedRef.current[type] = 0
     setTick((n) => n + 1)
-  }, [])
+    invoke('trigger_reminder_now', { reminderType: type }).catch(() => {})
 
   useEffect(() => {
     if (activeReminder) {
