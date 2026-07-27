@@ -20,24 +20,7 @@ jobs:
           name: DeskCare-Windows
           path: src-tauri/target/release/bundle/nsis/*.exe
 
-  macos-intel:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22 }
-      - run: npm ci
-      - run: rustup target add x86_64-apple-darwin
-      - uses: tauri-apps/tauri-action@v0
-        with:
-          args: --target x86_64-apple-darwin
-        env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
-      - uses: actions/upload-artifact@v4
-        with:
-          name: DeskCare-macOS-Intel
-          path: src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg
-
-  macos-arm:
+  macos:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,5 +31,5 @@ jobs:
         env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
       - uses: actions/upload-artifact@v4
         with:
-          name: DeskCare-macOS-ARM
+          name: DeskCare-macOS
           path: src-tauri/target/release/bundle/dmg/*.dmg
