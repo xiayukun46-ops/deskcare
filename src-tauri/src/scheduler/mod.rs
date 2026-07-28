@@ -136,6 +136,10 @@ async fn update_tray_menu_text(app: &AppHandle, engine: &SharedEngine) {
 pub async fn set_paused(ty: &str, paused: bool) {
     if let Some(eng) = get_engine() { eng.lock().await.set_paused(ty, paused); }
 }
+pub async fn reset_all() {
+    if let Some(eng) = get_engine() { eng.lock().await.reset_all(); }
+}
+
 pub async fn set_global_paused(paused: bool) {
     if let Some(eng) = get_engine() { eng.lock().await.global_paused = paused; }
 }

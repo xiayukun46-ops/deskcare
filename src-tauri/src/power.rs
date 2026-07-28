@@ -54,6 +54,7 @@ fn handle_suspend(reason: &str) {
 
     tauri::async_runtime::spawn(async {
         crate::scheduler::set_global_paused(true).await;
+        crate::scheduler::reset_all().await;
     });
 }
 
