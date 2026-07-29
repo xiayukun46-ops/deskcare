@@ -66,6 +66,21 @@ async fn tick_loop(app: AppHandle, engine: SharedEngine) {
         let triggered: Vec<String> = {
             let mut eng = engine.lock().await;
 
+
+            // 壁钟休眠检测（GetTickCount64 休眠时不走）
+            let now_ts = chrono::Local::now().timestamp();
+            let wall_gap = {
+                let mut last = LAST_TICK_TS.lock().unwrap();
+                let g = now_ts - *last;
+                *last = now_ts;
+                g
+            };
+            if wall_gap >= IDLE_RESET_SECS as i64 {
+                log::info!("💤 壁钟检测: tick间隔{}s (休眠恢复) — 暂停并重置", wall_gap);
+                eng.global_paused = true;
+                eng.reset_all();
+                WAS_IDLE.store(true, Ordering::SeqCst);
+            }
             // 空闲检测
             let secs = get_idle_seconds();
             if secs >= IDLE_RESET_SECS {
