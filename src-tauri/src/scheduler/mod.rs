@@ -23,6 +23,7 @@ pub fn get_engine() -> Option<SharedEngine> { ENGINE.get().cloned() }
 
 const IDLE_RESET_SECS: u64 = 300;
 static WAS_IDLE: AtomicBool = AtomicBool::new(false);
+static LAST_TICK_TS: std::sync::Mutex<i64> = std::sync::Mutex::new(0);
 
 #[cfg(target_os = "windows")]
 fn get_idle_seconds() -> u64 {
