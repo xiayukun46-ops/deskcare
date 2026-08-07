@@ -78,7 +78,7 @@ fn register_menu_events(app: &tauri::AppHandle) {
             }
             "quit_app" => {
                 log::info!("用户选择退出 DeskCare");
-                std::process::exit(0);
+                app_handle.exit(0);
             }
             _ => {}
         }
