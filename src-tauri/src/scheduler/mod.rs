@@ -81,21 +81,23 @@ async fn tick_loop(app: AppHandle, engine: SharedEngine) {
                 eng.reset_all();
                 WAS_IDLE.store(true, Ordering::SeqCst);
             }
-            // 空闲检测（壁钟已暂停则跳过）
+                      // 空闲进入检测（只在未暂停时检查）
             if !eng.global_paused {
                 let secs = get_idle_seconds();
-                if secs >= IDLE_RESET_SECS {
-                    if !WAS_IDLE.swap(true, Ordering::SeqCst) {
-                        log::info!("💤 用户 {} 秒未操作 — 暂停并重置全部计时器", secs);
-                        eng.global_paused = true;
-                        eng.reset_all();
-                    }
-                } else if WAS_IDLE.swap(false, Ordering::SeqCst) {
+                if secs >= IDLE_RESET_SECS && !WAS_IDLE.swap(true, Ordering::SeqCst) {
+                    log::info!("💤 用户 {} 秒未操作 — 暂停并重置全部计时器", secs);
+                    eng.global_paused = true;
+                    eng.reset_all();
+                }
+            }
+            // 空闲退出检测（暂停状态下必须检查，否则永远无法恢复）
+            if eng.global_paused {
+                let secs = get_idle_seconds();
+                if secs < IDLE_RESET_SECS && WAS_IDLE.swap(false, Ordering::SeqCst) {
                     log::info!("👋 用户回归 — 恢复计时（已重置）");
                     eng.global_paused = false;
                 }
-            }
-            eng.tick_all()
+            }eng.tick_all()
         };
 
         for ty in &triggered {
